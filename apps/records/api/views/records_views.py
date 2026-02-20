@@ -59,23 +59,6 @@ class RecordRetrieveView(APIView):
 
 class RecordUpdateView(APIView):
 
-    def put(self, request, pk):
-        try:
-            record = DataRecordSelector.get_record_by_id(pk)
-            if not record:
-                return BaseResponse.not_found()
-
-            serializer = DataRecordSerializer(data=request.data)
-            if not serializer.is_valid():
-                return BaseResponse.validation_error(serializer.errors)
-
-            updated_record = DataRecordService.update_record(pk, **serializer.validated_data)
-            output_serializer = DataRecordSerializer(updated_record)
-            return BaseResponse.success(data=output_serializer.data)
-
-        except ValidationError as e:
-            return BaseResponse.error(str(e))
-
     def patch(self, request, pk):
         try:
             record = DataRecordSelector.get_record_by_id(pk)
