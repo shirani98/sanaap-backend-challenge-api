@@ -11,7 +11,7 @@ from apps.records.api.serializers import (
 )
 from apps.records.selectors import DataRecordSelector
 from apps.records.services import DataRecordService
-from apps.utils import BaseResponse, DataRecordFilter, StandardResultsPagination
+from apps.utils import BaseResponse, DataRecordFilter, StandardResultsPagination, IsAdmin, IsEditorOrAdmin, IsAnyRole
 
 _LIST_FILTER_PARAMS = [
     OpenApiParameter("search", OpenApiTypes.STR, description="Case-insensitive search in title or description."),
@@ -24,8 +24,8 @@ _LIST_FILTER_PARAMS = [
 ]
 
 
-
 class RecordListView(APIView):
+    permission_classes = [IsAnyRole]
 
     @extend_schema(
         tags=["Records"],
@@ -47,6 +47,7 @@ class RecordListView(APIView):
 
 
 class RecordCreateView(APIView):
+    permission_classes = [IsEditorOrAdmin]
 
     @extend_schema(
         tags=["Records"],
@@ -78,6 +79,7 @@ class RecordCreateView(APIView):
 
 
 class RecordRetrieveView(APIView):
+    permission_classes = [IsAnyRole]
 
     @extend_schema(
         tags=["Records"],
@@ -100,6 +102,7 @@ class RecordRetrieveView(APIView):
 
 
 class RecordUpdateView(APIView):
+    permission_classes = [IsEditorOrAdmin]
 
     @extend_schema(
         tags=["Records"],
@@ -129,6 +132,7 @@ class RecordUpdateView(APIView):
 
 
 class RecordDeleteView(APIView):
+    permission_classes = [IsAdmin]
 
     @extend_schema(
         tags=["Records"],
