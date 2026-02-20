@@ -1,13 +1,38 @@
 from rest_framework.views import APIView
 from django.core.exceptions import ValidationError
-from apps.records.api.serializers import DataRecordSerializer
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
+from apps.records.api.serializers import (
+    DataRecordSerializer,
+    RecordResponseSerializer,
+    RecordListResponseSerializer,
+    NotFoundResponseSerializer,
+    DeletedResponseSerializer,
+)
 from apps.records.selectors import DataRecordSelector
 from apps.records.services import DataRecordService
 from apps.utils import BaseResponse, DataRecordFilter, StandardResultsPagination
 
+_LIST_FILTER_PARAMS = [
+    OpenApiParameter("search", OpenApiTypes.STR, description="Case-insensitive search in title or description."),
+    OpenApiParameter("is_active", OpenApiTypes.BOOL, description="Filter by active status."),
+    OpenApiParameter("created_at_after", OpenApiTypes.DATE, description="Include records created on or after this date (YYYY-MM-DD)."),
+    OpenApiParameter("created_at_before", OpenApiTypes.DATE, description="Include records created on or before this date (YYYY-MM-DD)."),
+    OpenApiParameter("ordering", OpenApiTypes.STR, description="Sort field. Options: title, -title, created_at, -created_at, updated_at, -updated_at, is_active, -is_active."),
+    OpenApiParameter("page", OpenApiTypes.INT, description="Page number (default: 1)."),
+    OpenApiParameter("page_size", OpenApiTypes.INT, description="Results per page (default: 10, max: 100)."),
+]
+
+
 
 class RecordListView(APIView):
 
+    @extend_schema(
+        tags=["Records"],
+        summary="List records",
+        parameters=_LIST_FILTER_PARAMS,
+        responses={200: RecordListResponseSerializer},
+    )
     def get(self, request):
         try:
             records = DataRecordSelector.get_all_records()
@@ -23,6 +48,15 @@ class RecordListView(APIView):
 
 class RecordCreateView(APIView):
 
+    @extend_schema(
+        tags=["Records"],
+        summary="Create a record",
+        request=DataRecordSerializer,
+        responses={
+            201: RecordResponseSerializer,
+            400: NotFoundResponseSerializer,
+        },
+    )
     def post(self, request):
         try:
             serializer = DataRecordSerializer(data=request.data)
@@ -45,6 +79,14 @@ class RecordCreateView(APIView):
 
 class RecordRetrieveView(APIView):
 
+    @extend_schema(
+        tags=["Records"],
+        summary="Retrieve a record",
+        responses={
+            200: RecordResponseSerializer,
+            404: NotFoundResponseSerializer,
+        },
+    )
     def get(self, request, pk):
         try:
             record = DataRecordSelector.get_record_by_id(pk)
@@ -59,6 +101,15 @@ class RecordRetrieveView(APIView):
 
 class RecordUpdateView(APIView):
 
+    @extend_schema(
+        tags=["Records"],
+        summary="Partially update a record",
+        request=DataRecordSerializer,
+        responses={
+            200: RecordResponseSerializer,
+            404: NotFoundResponseSerializer,
+        },
+    )
     def patch(self, request, pk):
         try:
             record = DataRecordSelector.get_record_by_id(pk)
@@ -79,6 +130,14 @@ class RecordUpdateView(APIView):
 
 class RecordDeleteView(APIView):
 
+    @extend_schema(
+        tags=["Records"],
+        summary="Delete a record",
+        responses={
+            204: DeletedResponseSerializer,
+            404: NotFoundResponseSerializer,
+        },
+    )
     def delete(self, request, pk):
         try:
             record = DataRecordSelector.get_record_by_id(pk)
