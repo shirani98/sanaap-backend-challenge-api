@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "drf_spectacular",
+    "storages",
     "apps.utils",
     "apps.records",
 ]
@@ -158,6 +159,22 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Document Management System REST API",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+}
+
+MINIO_ENDPOINT_URL = "http://localhost:9000"   # replace with your MinIO server URL
+MINIO_ACCESS_KEY = "minioadmin"                # replace with your access key
+MINIO_SECRET_KEY = "minioadmin"                # replace with your secret key
+MINIO_BUCKET_NAME = "dms-records"             # bucket must exist in MinIO
+MINIO_USE_SSL = False                          # set True when using HTTPS
+MINIO_PRESIGNED_URLS = True                    # True = signed private URLs, False = public direct URLs
+
+STORAGES = {
+    "default": {
+        "BACKEND": "apps.utils.storage.minio_storage.MinIOStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
 }
 
 
