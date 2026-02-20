@@ -6,19 +6,25 @@ A Document Management System REST API built with Django 5 and DRF.
 
 Django 5 · DRF · SimpleJWT · PostgreSQL · Redis · MinIO · drf-spectacular
 
-## Quick Start
+## Quick Start (Docker)
 
 ```bash
-# Install dependencies
+cp .env.example .env           # configure secrets
+docker compose up --build -d   # start all services
+docker compose exec web python manage.py createsuperuser
+```
+
+Services: `web` · `db` (PostgreSQL) · `redis` · `minio` · `celery`
+
+- MinIO console: `http://localhost:9001`
+- API: `http://localhost:8000/api/`
+
+## Quick Start (Local)
+
+```bash
 poetry install
-
-# Apply migrations
+cp .env.example .env           # set DATABASE_URL=sqlite:///db.sqlite3 for local dev
 poetry run python manage.py migrate
-
-# Create superuser
-poetry run python manage.py createsuperuser
-
-# Run server
 poetry run python manage.py runserver
 ```
 

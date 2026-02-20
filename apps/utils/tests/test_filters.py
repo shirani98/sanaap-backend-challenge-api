@@ -1,4 +1,6 @@
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
+from rest_framework.test import APIRequestFactory
+from rest_framework.request import Request
 
 from apps.records.models.records_model import DataRecord
 from apps.utils.filters.data_record_filter import DataRecordFilter
@@ -7,7 +9,7 @@ from apps.utils.filters.data_record_filter import DataRecordFilter
 class DataRecordFilterTests(TestCase):
 
     def setUp(self):
-        self.factory = RequestFactory()
+        self.factory = APIRequestFactory()
         self.filter = DataRecordFilter()
         self.qs = DataRecord.objects.all()
 
@@ -16,7 +18,7 @@ class DataRecordFilterTests(TestCase):
         DataRecord.objects.create(title="Meeting Notes", description="notes", is_active=True)
 
     def _filter(self, params):
-        request = self.factory.get("/", params)
+        request = Request(self.factory.get("/", params))
         return self.filter.filter_queryset(request, DataRecord.objects.all(), view=None)
 
     def test_search_matches_title(self):
